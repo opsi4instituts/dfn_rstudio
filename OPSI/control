@@ -1,0 +1,36 @@
+[Package]
+version: 1
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: dfn_rstudio
+name: RStudio
+description: RStudio is a set of integrated tools designed to help you be more productive with R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management.
+advice: 
+version: 0.99.451
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: setup.opsiscript
+uninstallScript: uninstall.opsiscript
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[ProductDependency]
+action: setup
+requiredProduct: dfn_r
+requiredStatus: installed
+requirementType: before
+
+[Changelog]
+rstudio (0.98.1102-1) stable; urgency=low
+
+	* initial: created by opsi-setup-detector
+
+-- opsisetupdetector.exe <info@uib.de>  18.02.2015 12:38:46
+

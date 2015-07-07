@@ -1,0 +1,181 @@
+; ----------------------------------------------------------------
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+; ----------------------------------------------------------------
+
+;****************************************
+; SETUPTYPE      nsis
+;****************************************
+; PRODUCTID      rstudio
+; SETUPFILE      RStudio-0.98.1102.exe
+;****************************************
+; LICENSE        false     
+; PRODUCTDESC    RStudio is a set of integrated tools designed to help you be more productive with R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management.
+
+; PRODUCTNAME    RStudio
+; PRODUCTSIZE    284 MB
+; PRODUCTVER     0.98.1102
+;****************************************
+; SETUPSCRIPT    setup.opsiscript
+; UNINSSCRIPT    uninstall.opsiscript
+;****************************************
+; MSIID          
+; USE-MST        
+; INSTALLDIR     C:\Program Files\RStudio
+;****************************************
+; TIMESTAMP      18.02.2015 12:38:46
+;****************************************
+[Initial]
+setLogLevel=6
+;  Log Errors in Logfile but don't abort:
+ExitOnError=False
+; Show syntax errors in the script:
+ScriptErrorMessages=on
+; Dont trace step by step through the script:
+TraceMode=off
+; let started programs run in front of the winst window
+StayOnTop=False
+ 
+
+[Actions]
+requiredWinstVersion >= "4.11.3.3"
+
+DefVar $SetupType$
+DefVar $ProductId$ 
+DefVar $Setupfile$ 
+DefVar $InstallDir$
+DefVar $MinimumSpace$
+DefVar $ExitCode$
+DefVar $ErrorMsg$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+DefVar $MsiId$
+DefVar $NsisInstallBatch$
+DefVar $LogDir$
+
+DefVar	$PackageVersion$
+DefVar	$SetupVersion$
+DefVar $PrettyName$
+DefVar $TaskName$
+
+;DefVar $language$
+;DefVar $default_language$
+;DefVar $system_language$
+;DefStringList $languagemap$
+
+Set $LogDir$ = "%SystemDrive%\tmp"
+
+include_append "%ScriptPath%\check_nsis_exitcode.opsiscript"
+
+
+; ----------------------------------------------------------------
+Set $SetupType$       = "nsis"
+; ----------------------------------------------------------------
+
+; $ProductId$ is the name of the product in opsi, only lower letters, no umlauts, no white spaces, use '-' as a seperator
+
+Set $ProductId$       = "rstudio"
+Set $PrettyName$			= "RStudio"
+Set $PackageVersion$	= takeString(1, splitString ("%installingProdVersion%","-"))
+Set $SetupVersion$	= strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $SetupFile$ 	= $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
+
+; the path where we find the product after the installation
+Set $InstallDir$      = "C:\Program Files\RStudio"
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+Set $MsiId$           = ""
+Set $MinimumSpace$    = "284 MB"
+; ----------------------------------------------------------------
+Set $TaskName$					= "rstudio.exe"
+
+; ----------------------------------------------------------------
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+  LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+  isFatalError "No Space"
+  ; Stop process and set installation status to failed
+else
+  comment "Show product picture"
+  ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$ + " " + $SetupVersion$
+  Killtask $TaskName$
+
+  if FileExists("%ScriptPath%\delsub.opsiscript")
+    comment "Start uninstall sub section"
+    Sub "%ScriptPath%\delsub.opsiscript"
+  endif
+   
+  Message "Installing " + $ProductId$ + " ..."
+   
+  if $LicenseRequired$ = "true"
+    comment "Licensing required, reserve license and get license key"
+    Sub_get_licensekey
+  endif
+
+  if ($SetupType$ = "nsis")
+    Set $NsisInstallBatch$ = "%ScriptPath%\" + $Setupfile$ +" /S"
+    if not ($InstallDir$ = '')
+      Set $NsisInstallBatch$ = $NsisInstallBatch$ + ' /D="' + $InstallDir$ + '"'
+    endif
+  endif
+	
+
+   comment "Start setup program"
+   ChangeDirectory "%SCRIPTPATH%"
+   ;----------------------------------------------
+   Winbatch_install_nsis
+   ;----------------------------------------------
+   Sub_check_exitcode	
+endif
+
+
+; ----------------------------------------------------------------
+; install sections
+; ----------------------------------------------------------------
+[Winbatch_install_nsis]
+;NSIS Nullsoft Scriptable Install System 
+$NsisInstallBatch$
+; ----------------------------------------------------------------
+
+
+[Sub_get_licensekey]
+if opsiLicenseManagementEnabled
+   comment "License management is enabled and will be used"
+
+   comment "Trying to get a license key"
+   Set $LicenseKey$ = demandLicenseKey ($LicensePool$)
+   ; If there is an assignment of exactly one licensepool to the product the following call is possible:
+   ; Set $LicenseKey$ = demandLicenseKey ("", $ProductId$)
+   ;
+   ; If there is an assignment of a license pool to a windows software id, it is possible to use:
+   ; DefVar $WindowsSoftwareId$
+   ; $WindowsSoftwareId$ = "..."
+   ; Set $LicenseKey$ = demandLicenseKey ("", "", $WindowsSoftwareId$)
+
+   DefVar $ServiceErrorClass$
+   set $ServiceErrorClass$ = getLastServiceErrorClass
+   comment "Error class: " + $ServiceErrorClass$
+   
+   if $ServiceErrorClass$ = "None"
+      comment "Everything fine, we got the license key '" + $LicenseKey$ + "'"
+   else
+      if $ServiceErrorClass$ = "LicenseConfigurationError"
+         LogError "Fatal: license configuration must be corrected"
+         LogError getLastServiceErrorMessage
+         isFatalError
+      else 
+         if $ServiceErrorClass$ = "LicenseMissingError"
+            LogError "Fatal: required license is not supplied"
+            isFatalError
+         endif
+      endif
+   endif
+else
+   LogError "Fatal: license required, but license management not enabled"
+   isFatalError
+endif
+
+; ----------------------------------------------------------------
+; ----------------------------------------------------------------
