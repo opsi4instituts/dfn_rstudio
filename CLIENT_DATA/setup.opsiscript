@@ -42,7 +42,6 @@ StayOnTop=False
 [Actions]
 requiredWinstVersion >= "4.11.3.3"
 
-DefVar $SetupType$
 DefVar $ProductId$ 
 DefVar $Setupfile$ 
 DefVar $InstallDir$
@@ -56,8 +55,8 @@ DefVar $MsiId$
 DefVar $NsisInstallBatch$
 DefVar $LogDir$
 
-DefVar	$PackageVersion$
-DefVar	$SetupVersion$
+DefVar $PackageVersion$
+DefVar $SetupVersion$
 DefVar $PrettyName$
 DefVar $TaskName$
 
@@ -72,16 +71,14 @@ include_append "%ScriptPath%\check_nsis_exitcode.opsiscript"
 
 
 ; ----------------------------------------------------------------
-Set $SetupType$       = "nsis"
-; ----------------------------------------------------------------
 
 ; $ProductId$ is the name of the product in opsi, only lower letters, no umlauts, no white spaces, use '-' as a seperator
 
 Set $ProductId$       = "rstudio"
 Set $PrettyName$			= "RStudio"
 Set $PackageVersion$	= takeString(1, splitString ("%installingProdVersion%","-"))
-Set $SetupVersion$	= strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
-Set $SetupFile$ 	= $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
+Set $SetupVersion$  	= strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $SetupFile$     	= $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
 
 ; the path where we find the product after the installation
 Set $InstallDir$      = "C:\Program Files\RStudio"
@@ -114,13 +111,10 @@ else
     Sub_get_licensekey
   endif
 
-  if ($SetupType$ = "nsis")
-    Set $NsisInstallBatch$ = "%ScriptPath%\" + $Setupfile$ +" /S"
-    if not ($InstallDir$ = '')
-      Set $NsisInstallBatch$ = $NsisInstallBatch$ + ' /D="' + $InstallDir$ + '"'
-    endif
+  Set $NsisInstallBatch$ = "%ScriptPath%\" + $Setupfile$ +" /S"
+  if not ($InstallDir$ = '')
+    Set $NsisInstallBatch$ = $NsisInstallBatch$ + ' /D="' + $InstallDir$ + '"'
   endif
-	
 
    comment "Start setup program"
    ChangeDirectory "%SCRIPTPATH%"
