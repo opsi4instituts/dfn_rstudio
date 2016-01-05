@@ -40,7 +40,7 @@ StayOnTop=False
  
 
 [Actions]
-requiredWinstVersion >= "4.11.3.3"
+requiredWinstVersion >= "4.11.4.17"
 
 DefVar $ProductId$ 
 DefVar $Setupfile$ 
@@ -67,8 +67,8 @@ DefVar $TaskName$
 
 Set $LogDir$ = "%SystemDrive%\tmp"
 
-include_append "%ScriptPath%\check_nsis_exitcode.opsiscript"
-
+include_append "insert_check_exit_code.opsiinc"
+include_append "insert_get_licensekey.opsiinc"
 
 ; ----------------------------------------------------------------
 
