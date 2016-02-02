@@ -5,9 +5,9 @@
 
 [Actions]
 requiredWinstVersion >= "4.11.3.3"
+include_insert "insert_check_exit_code.opsiinc"
 
 DefVar $LogDir$
-DefVar $ExitCode$
 DefVar $ErrorMsg$
 DefVar $ProductId$
 DefVar $InstallDir$

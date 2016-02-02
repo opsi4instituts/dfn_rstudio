@@ -3,8 +3,6 @@
 ; and published under the Terms of the General Public License.
 ; credits: http://www.opsi.org/en/credits/
 
-include_append "%ScriptPath%\check_nsis_exitcode.opsiscript"
-
 DefVar $UninstallProgram$
 
 Message "Uninstalling " + $ProductId$ + " ..."

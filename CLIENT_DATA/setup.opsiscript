@@ -41,16 +41,14 @@ StayOnTop=False
 
 [Actions]
 requiredWinstVersion >= "4.11.4.17"
+include_insert "insert_check_exit_code.opsiinc"
+include_insert "insert_get_licensekey.opsiinc"
 
 DefVar $ProductId$ 
 DefVar $Setupfile$ 
 DefVar $InstallDir$
 DefVar $MinimumSpace$
-DefVar $ExitCode$
 DefVar $ErrorMsg$
-DefVar $LicenseRequired$
-DefVar $LicenseKey$
-DefVar $LicensePool$
 DefVar $MsiId$
 DefVar $NsisInstallBatch$
 DefVar $LogDir$
@@ -67,8 +65,6 @@ DefVar $TaskName$
 
 Set $LogDir$ = "%SystemDrive%\tmp"
 
-include_append "insert_check_exit_code.opsiinc"
-include_append "insert_get_licensekey.opsiinc"
 
 ; ----------------------------------------------------------------
 
