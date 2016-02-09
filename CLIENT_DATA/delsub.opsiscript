@@ -22,3 +22,7 @@ endif
 [Winbatch_uninstall_nsis]
 "$UninstallProgram$" /S
 ;-----------------------------------------------------
+
+[Files_uninstall]
+; Example for recursively deleting the installation directory:
+del -sf "$InstallDir$\"
