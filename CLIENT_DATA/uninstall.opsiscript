@@ -4,31 +4,33 @@
 ; credits: http://www.opsi.org/en/credits/
 
 [Actions]
+;==========================================================================================================
+; Includes
+
 requiredWinstVersion >= "4.11.3.3"
 include_insert "insert_check_exit_code.opsiinc"
+include_append "section_linkfolder.opsiinc"
+
+;==========================================================================================================
+; Variables
 
 DefVar $LogDir$
-DefVar $ErrorMsg$
 DefVar $ProductId$
 DefVar $InstallDir$
-DefVar $LicenseRequired$
-DefVar $LicensePool$
 DefVar $PrettyName$
 DefVar $TaskName$					
+DefVar $DesktopIconName$  
+DefVar $CustomPostDeinstall$
 
-Set $LogDir$ = "%SystemDrive%\tmp"
-
-; ----------------------------------------------------------------
-; - Please check the following values                             -
-; ----------------------------------------------------------------
+Set $LogDir$          = "%SystemDrive%\tmp"
 Set $ProductId$       = "rstudio"
 Set $PrettyName$			= "RStudio"
 Set $InstallDir$      = "C:\Program Files\RStudio"
 Set $TaskName$				= "rstudio.exe"
-Set $LicenseRequired$ = "false"
-Set $LicensePool$     = "p_" + $ProductId$
-; ----------------------------------------------------------------
+Set $DesktopIconName$ = $PrettyName$	
 
+;==========================================================================================================
+; Program logic
 
 comment "Show product picture"
 ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
@@ -41,22 +43,15 @@ if FileExists("%ScriptPath%\delsub.opsiscript")
    Sub "%ScriptPath%\delsub.opsiscript"
 endif
 
-if $LicenseRequired$ = "true"
-   comment "Licensing required, free license used"
-   Sub_free_license
+; Make sure the desktop icon gets deleted as well.
+LinkFolder_delete
+
+; Include post deinstall file in custom folder via OPSI property 
+comment "include custom post deinstall file"
+set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+if not ($CustomPostDeinstall$ = "none")
+	if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+		include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+	endif
 endif
-
-[Sub_free_license]
-comment "License management is enabled and will be used"
-
-comment "Trying to free license used for the product"
-DefVar $result$
-Set $result$ = FreeLicense($LicensePool$)
-; If there is an assignment of a license pool to the product, it is possible to use
-; Set $result$ = FreeLicense("", $ProductId$)
-;
-; If there is an assignment of a license pool to a windows software id, it is possible to use
-; DefVar $WindowsSoftwareId$
-; $WindowsSoftwareId$ = "..."
-; set $result$ = FreeLicense("", "", $WindowsSoftwareId$)
 

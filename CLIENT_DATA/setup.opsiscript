@@ -40,16 +40,21 @@ StayOnTop=False
  
 
 [Actions]
+;==========================================================================================================
+; Includes
+
 requiredWinstVersion >= "4.11.4.17"
 include_insert "insert_check_exit_code.opsiinc"
-include_insert "insert_get_licensekey.opsiinc"
+include_append "section_linkfolder.opsiinc"
+
+
+;==========================================================================================================
+; Variables
 
 DefVar $ProductId$ 
 DefVar $Setupfile$ 
 DefVar $InstallDir$
 DefVar $MinimumSpace$
-DefVar $ErrorMsg$
-DefVar $MsiId$
 DefVar $NsisInstallBatch$
 DefVar $LogDir$
 
@@ -57,6 +62,11 @@ DefVar $PackageVersion$
 DefVar $SetupVersion$
 DefVar $PrettyName$
 DefVar $TaskName$
+DefVar $CustomPostInstall$
+
+DefVar $PathToExe$
+DefVar $DesktopIconName$  
+DefVar $Property_DesktopIcon$
 
 ;DefVar $language$
 ;DefVar $default_language$
@@ -65,27 +75,24 @@ DefVar $TaskName$
 
 Set $LogDir$ = "%SystemDrive%\tmp"
 
-
 ; ----------------------------------------------------------------
-
-; $ProductId$ is the name of the product in opsi, only lower letters, no umlauts, no white spaces, use '-' as a seperator
-
-Set $ProductId$       = "rstudio"
-Set $PrettyName$			= "RStudio"
-Set $PackageVersion$	= takeString(1, splitString ("%installingProdVersion%","-"))
-Set $SetupVersion$  	= strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
-Set $SetupFile$     	= $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
-
+Set $ProductId$            = "rstudio"
+Set $PrettyName$			     = "RStudio"
+Set $PackageVersion$	     = takeString(1, splitString ("%installingProdVersion%","-"))
+Set $SetupVersion$  	     = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $SetupFile$          	 = $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
+Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
 ; the path where we find the product after the installation
-Set $InstallDir$      = "C:\Program Files\RStudio"
-Set $LicenseRequired$ = "false"
-Set $LicensePool$     = "p_" + $ProductId$
-Set $MsiId$           = ""
-Set $MinimumSpace$    = "284 MB"
-; ----------------------------------------------------------------
-Set $TaskName$					= "rstudio.exe"
+Set $InstallDir$           = "C:\Program Files\RStudio"
+Set $MinimumSpace$         = "284 MB"
+Set $TaskName$					   = "rstudio.exe"
 
-; ----------------------------------------------------------------
+Set $PathToExe$            = $InstallDir$ + "\bin\" + $TaskName$
+Set $DesktopIconName$      = $PrettyName$	
+;
+;==========================================================================================================
+; Program logic
+
 if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
   LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
   isFatalError "No Space"
@@ -101,69 +108,38 @@ else
   endif
    
   Message "Installing " + $ProductId$ + " ..."
-   
-  if $LicenseRequired$ = "true"
-    comment "Licensing required, reserve license and get license key"
-    Sub_get_licensekey
-  endif
 
   Set $NsisInstallBatch$ = "%ScriptPath%\" + $Setupfile$ +" /S"
   if not ($InstallDir$ = '')
     Set $NsisInstallBatch$ = $NsisInstallBatch$ + ' /D="' + $InstallDir$ + '"'
   endif
 
-   comment "Start setup program"
-   ChangeDirectory "%SCRIPTPATH%"
-   ;----------------------------------------------
-   Winbatch_install_nsis
-   ;----------------------------------------------
-   Sub_check_exitcode	
+  comment "Start setup program"
+  ChangeDirectory "%SCRIPTPATH%"
+  Winbatch_install_nsis
+  Sub_check_exitcode	
+
+	; Setting the desktop icon or removing it - as set in the config editor
+  if $Property_DesktopIcon$ = "True"
+    LinkFolder_create
+  else
+    LinkFolder_delete
+  endif
+
+  comment "include custom post install file"
+  set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+  if not ($CustomPostInstall$ = "none")
+	  if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+		  include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+	  endif
+  endif
+  
 endif
 
 
-; ----------------------------------------------------------------
-; install sections
-; ----------------------------------------------------------------
+;==========================================================================================================
+; Functions
+
 [Winbatch_install_nsis]
 ;NSIS Nullsoft Scriptable Install System 
 $NsisInstallBatch$
-; ----------------------------------------------------------------
-
-
-[Sub_get_licensekey]
-if opsiLicenseManagementEnabled
-   comment "License management is enabled and will be used"
-
-   comment "Trying to get a license key"
-   Set $LicenseKey$ = demandLicenseKey ($LicensePool$)
-   ; If there is an assignment of exactly one licensepool to the product the following call is possible:
-   ; Set $LicenseKey$ = demandLicenseKey ("", $ProductId$)
-   ;
-   ; If there is an assignment of a license pool to a windows software id, it is possible to use:
-   ; DefVar $WindowsSoftwareId$
-   ; $WindowsSoftwareId$ = "..."
-   ; Set $LicenseKey$ = demandLicenseKey ("", "", $WindowsSoftwareId$)
-
-   DefVar $ServiceErrorClass$
-   set $ServiceErrorClass$ = getLastServiceErrorClass
-   comment "Error class: " + $ServiceErrorClass$
-   
-   if $ServiceErrorClass$ = "None"
-      comment "Everything fine, we got the license key '" + $LicenseKey$ + "'"
-   else
-      if $ServiceErrorClass$ = "LicenseConfigurationError"
-         LogError "Fatal: license configuration must be corrected"
-         LogError getLastServiceErrorMessage
-         isFatalError
-      else 
-         if $ServiceErrorClass$ = "LicenseMissingError"
-            LogError "Fatal: required license is not supplied"
-            isFatalError
-         endif
-      endif
-   endif
-else
-   LogError "Fatal: license required, but license management not enabled"
-   isFatalError
-endif
-
