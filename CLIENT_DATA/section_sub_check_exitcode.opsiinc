@@ -1,14 +1,18 @@
 ;opsi include file
 
 [Sub_check_exitcode]
-comment "Test for installation success via exit code"
-set $ExitCode$ = getLastExitCode
-; informations to exit codes see
-; http://msdn.microsoft.com/en-us/library/aa372835(VS.85).aspx
-; http://msdn.microsoft.com/en-us/library/aa368542.aspx
-if ($ExitCode$ = "0")
-	comment "Looks good: setup program gives exitcode zero"
+
+if FileExists("%ScriptPath%\..\lib\check_msi-exitcode.ins")
+   include_insert "%ScriptPath%\..\lib\check_msi-exitcode.ins"
 else
+   comment "Test for installation success via exit code"
+   set $ExitCode$ = getLastExitCode
+   ; informations to exit codes see
+   ; http://msdn.microsoft.com/en-us/library/aa372835(VS.85).aspx
+   ; http://msdn.microsoft.com/en-us/library/aa368542.aspx
+   if ($ExitCode$ = "0")
+   	comment "Looks good: setup program gives exitcode zero"
+   else
 	comment "Setup program gives a exitcode unequal zero: " + $ExitCode$
 	if ($ExitCode$ = "1605")
 		comment "ERROR_UNKNOWN_PRODUCT	1605	This action is only valid for products that are currently installed."
@@ -29,4 +33,5 @@ else
 			endif
 		endif
 	endif
+   endif
 endif

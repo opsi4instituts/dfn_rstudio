@@ -1,0 +1,79 @@
+; This sourcecode published under the Terms of the General Public License.
+;  modified  by Friedlinde Buehler, IMBI Freiburg, buehler@imbi.uni-freiburg.de.
+;  and Frank Werner, IMBI Freiburg, frwerner@imbi.uni-freiburg.de
+; Inspired OPSI4Institutes- Guidelines
+
+;==========================================================================================================
+
+; opsi include file
+; Variables
+
+DefVar $ProductId$
+DefVar $Setupfile$
+DefVar $InstallDir$
+DefVar $MinimumSpace$
+DefVar $NsisInstallBatch$
+DefVar $LogDir$
+
+DefVar $PackageVersion$
+DefVar $SetupVersion$
+DefVar $ProductName$
+DefVar $TaskName$
+DefVar $CustomPostInstall$
+DefVar $CustomPostDeinstall$
+
+DefVar $PathToExe$
+DefVar $DesktopIconName$
+DefVar $Property_DesktopIcon$
+DefVar $ExitCode$
+
+DefVar $UninstallProgram$
+
+DefVar $OS$
+Set $OS$                   = GetOS
+if ($OS$ = "Linux")
+        logError "Installation aborted: wrong OS version: only Windows Supported (by now)"
+        isFatalError "wrong OS"
+endif
+
+Set $LogDir$               = "%SystemDrive%\tmp"
+
+;Geklaut im opsi-wiki. Danke Detlef Krummel.
+DefStringList   $ProductMap_List$
+Set             $ProductMap_List$ = getProductMap
+Set $ProductId$            = getValue("id", $ProductMap_List$)
+Set $ProductName$          = getValue("name", $ProductMap_List$)
+;Info: Set $ProductId$           = "rstudio"
+;Info: Set $ProductName$         = "RStudio"
+
+Set $PackageVersion$       = takeString(1, splitString ("%installingProdVersion%","-"))
+;Set $SetupVersion$         = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $SetupVersion$         = takeString(0, splitString ("%installingProdVersion%","-"))
+Set $SetupFile$            = $ProductName$ + "-" + $SetupVersion$ + ".exe"
+Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
+; the path where we find the product after the installation
+Set $InstallDir$           = "C:\Program Files\RStudio"
+Set $MinimumSpace$         = "284 MB"
+Set $TaskName$             = "rstudio.exe"
+
+Set $PathToExe$            = $InstallDir$ + "\bin\" + $TaskName$
+Set $DesktopIconName$      = $ProductName$
+
+comment "Show product picture"
+if (FileExists("%ScriptPath%\..\lib\icons\$ProductId$.png"))
+       comment "logo at local library/icons found."
+       ShowBitmap "%ScriptPath%\..\lib\icons\$ProductId$.png"
+else
+       comment "no logo at local library/icons, use from ScriptPath ..."
+       if (FileExists("%ScriptPath%\$ProductId$.png"))
+               ShowBitmap  "%ScriptPath%\" + $ProductId$ + ".png" $ProductName$
+       else
+              if (FileExists("%ScriptPath%\o4i.png"))
+                      ShowBitmap  "%ScriptPath%\o4i.png" $ProductName$
+              else
+                     comment "No Logo found :("
+              endif
+       endif
+endif
+
+

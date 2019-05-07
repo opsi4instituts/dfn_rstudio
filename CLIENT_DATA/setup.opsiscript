@@ -1,31 +1,19 @@
-; ----------------------------------------------------------------
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/en/credits/
-; ----------------------------------------------------------------
+; This sourcecode published under the Terms of the General Public License.
+; mostly written by Eric Esser, Wissenschaftszentrum Berlin, eric.esser@wzb.eu; modified  by Friedlinde Buehler, IMBI Freiburg, buehler@imbi.uni-freiburg.de.
+; Inspired by uib gmbh (www.uib.de)
 
-;****************************************
-; SETUPTYPE      nsis
-;****************************************
-; PRODUCTID      rstudio
-; SETUPFILE      RStudio-0.98.1102.exe
-;****************************************
+;==========================================================================================================
+
 ; LICENSE        false     
 ; PRODUCTDESC    RStudio is a set of integrated tools designed to help you be more productive with R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management.
 
 ; PRODUCTNAME    RStudio
-; PRODUCTSIZE    284 MB
-; PRODUCTVER     0.98.1102
 ;****************************************
 ; SETUPSCRIPT    setup.opsiscript
 ; UNINSSCRIPT    uninstall.opsiscript
 ;****************************************
-; MSIID          
-; USE-MST        
 ; INSTALLDIR     C:\Program Files\RStudio
 ;****************************************
-; TIMESTAMP      18.02.2015 12:38:46
 ;****************************************
 [Initial]
 setLogLevel=6
@@ -44,63 +32,19 @@ StayOnTop=False
 ; Includes
 
 requiredWinstVersion >= "4.11.4.17"
-include_insert "insert_check_exit_code.opsiinc"
+include_append "section_sub_check_exitcode.opsiinc"
+include_insert "insert_variables.opsiinc"
 include_append "section_linkfolder.opsiinc"
 
 
-;==========================================================================================================
-; Variables
-
-DefVar $ProductId$ 
-DefVar $Setupfile$ 
-DefVar $InstallDir$
-DefVar $MinimumSpace$
-DefVar $NsisInstallBatch$
-DefVar $LogDir$
-
-DefVar $PackageVersion$
-DefVar $SetupVersion$
-DefVar $PrettyName$
-DefVar $TaskName$
-DefVar $CustomPostInstall$
-
-DefVar $PathToExe$
-DefVar $DesktopIconName$  
-DefVar $Property_DesktopIcon$
-
-;DefVar $language$
-;DefVar $default_language$
-;DefVar $system_language$
-;DefStringList $languagemap$
-
-Set $LogDir$ = "%SystemDrive%\tmp"
-
-; ----------------------------------------------------------------
-Set $ProductId$            = "rstudio"
-Set $PrettyName$			     = "RStudio"
-Set $PackageVersion$	     = takeString(1, splitString ("%installingProdVersion%","-"))
-Set $SetupVersion$  	     = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
-Set $SetupFile$          	 = $PrettyName$ + "-" + $SetupVersion$ + ".exe"	
-Set $Property_DesktopIcon$ = GetProductProperty("desktopicon", "true")
-; the path where we find the product after the installation
-Set $InstallDir$           = "C:\Program Files\RStudio"
-Set $MinimumSpace$         = "284 MB"
-Set $TaskName$					   = "rstudio.exe"
-
-Set $PathToExe$            = $InstallDir$ + "\bin\" + $TaskName$
-Set $DesktopIconName$      = $PrettyName$	
-;
-;==========================================================================================================
-; Program logic
 
 if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
   LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
   isFatalError "No Space"
   ; Stop process and set installation status to failed
 else
-  comment "Show product picture"
-  ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$ + " " + $SetupVersion$
-  Killtask $TaskName$
+
+Killtask $TaskName$
 
   if FileExists("%ScriptPath%\delsub.opsiscript")
     comment "Start uninstall sub section"
