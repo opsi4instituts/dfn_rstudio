@@ -1,39 +1,20 @@
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib gmbh
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/en/credits/
+; This sourcecode published under the Terms of the General Public License.
+; Program logic written by uib gmbh,  modified  by Friedlinde Buehler, IMBI Freiburg, buehler@imbi.uni-freiburg.de.
+; Inspired OPSI4Institutes- Guidelines
 
 [Actions]
 ;==========================================================================================================
 ; Includes
 
 requiredWinstVersion >= "4.11.3.3"
-include_insert "insert_check_exit_code.opsiinc"
+include_append "section_sub_check_exitcode.opsiinc"
+include_insert "insert_variables.opsiinc" 
 include_append "section_linkfolder.opsiinc"
 
-;==========================================================================================================
-; Variables
-
-DefVar $LogDir$
-DefVar $ProductId$
-DefVar $InstallDir$
-DefVar $PrettyName$
-DefVar $TaskName$					
-DefVar $DesktopIconName$  
-DefVar $CustomPostDeinstall$
-
-Set $LogDir$          = "%SystemDrive%\tmp"
-Set $ProductId$       = "rstudio"
-Set $PrettyName$			= "RStudio"
-Set $InstallDir$      = "C:\Program Files\RStudio"
-Set $TaskName$				= "rstudio.exe"
-Set $DesktopIconName$ = $PrettyName$	
 
 ;==========================================================================================================
 ; Program logic
 
-comment "Show product picture"
-ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
 
 Message "Uninstalling " + $ProductId$ + " ..."
 

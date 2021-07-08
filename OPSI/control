@@ -9,7 +9,7 @@ id: dfn_rstudio
 name: RStudio
 description: RStudio is a set of integrated tools designed to help you be more productive with R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management.
 advice: 
-version: 1.1.383
+version: 1.2.1335
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -26,6 +26,12 @@ action: setup
 requiredProduct: dfn_r
 requiredStatus: installed
 requirementType: before
+
+[ProductProperty]
+type: bool
+name: desktopicon
+description: generate or delete desktop icon
+default: True
 
 [ProductProperty]
 type: unicode
@@ -45,13 +51,27 @@ description: Define filename for include script in custom directory after deinst
 values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
-[ProductProperty]
-type: bool
-name: desktopicon
-description: generate or delete desktop icon
-default: True
-
 [Changelog]
+dfn_rstudio (1.2.1335-1) Mathias Walter (InstMikroBioBw, München, mathiaswalter@instmikrobiobw.de), 07.05.2019
+dfn_rstudio (1.1.463-1) Friedlinde Buehler (IMBI, Freiburg, buehler@imbi.uni-freiburg.de), 12.08.2018
+dfn_rstudio (1.1.456-1) Friedlinde Buehler (IMBI, Freiburg, buehler@imbi.uni-freiburg.de), 20.07.2018
+dfn_rstudio (1.1.453-1) Friedlinde Buehler (IMBI, Freiburg, buehler@imbi.uni-freiburg.de), 17.05.2018
+dfn_rstudio (1.1.447-2) update von r auf 3.5.0, Friedlinde Buehler (IMBI, Freiburg, buehler@imbi.uni-freiburg.de), 24.04.2018
+dfn_rstudio (1.1.dfn_r (3.4.4-1)) update auf 3.4.4, Friedlinde Buehler (IMBI, Freiburg, buehler@imbi.uni-freiburg.de), 20.3.2018
+dfn_rstudio (1.1.447-1) F.Buehler (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 19.04.2018; neue Version
+dfn_rstudio (1.1.423-1) F. Buehler  (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 02.03.2018; im control-file desktopicon anstatt desktopiconname
+dfn_rstudio (1.1.423-1) F.Buehler, (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 08.02.2018
+dfn_rstudio (1.1.423-1) F.Buehler, (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 08.02.2018
+dfn_rstudio (1.1.419-1) F.Buehler, (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 25.01.2018
+dfn_rstudio (1.1.414-1) F.Buehler, (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 19.01.2018
+dfn_rstudio (1.1.383-1) F.Buehler,F.Werner (IMBI Freiburg, buehler@imbi.uni-freiburg.de, frwerner@imbi.uni-freiburg.de), 17.10.2017
+
+rstudio (1.0.153-5)  in insertinsert_variables.opsiinc *.png direkt unter %ScriptPath% anstatt %Scriptpath%\icon Verzeichnis, F.Buehler,F.Werner (IMBI Freiburg, buehler@imbi.uni-freiburg.de, frwerner@imbi.uni-freiburg.de), 03.08.2017
+
+rstudio (1.0.153-4) Auswahl Bild aus lib Verzeichnis, installdir oder o4i.png,  F.Buehler,F.Werner (IMBI Freiburg, buehler@imbi.uni-freiburg.de, frwerner@imbi.uni-freiburg.de), 03.08.2017
+rstudio (1.0.53-3) zentrale include-datei fuer variablen eingefuehrt, fehlermeldung bei OS=Linux, Frank Werner (IMBI Freiburg, frwerner@imbi.uni-freiburg.de) 28.07.2017
+rstudio (1.0.153-1) neue Version, insert_variables.opsiinc,  Friedlinde Buehler (IMBI Freiburg, buehler@imbi.uni-freiburg.de), 24.07.2017
+rstudio (1.0.44-1) buehler
 rstudio (0.98.1102-1) stable; urgency=low
 
 	* initial: created by opsi-setup-detector
